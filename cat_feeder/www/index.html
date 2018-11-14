@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cat Feeder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <style>
+        body {
+            font-family: "Helvetica Neue", Helvetica
+            #background-color: #222220;
+            #color: #fff;
+        }
+        .action {
+            border-radius: 15px;
+            border: 0;
+            height: 60px;
+            width: 70px;
+            background-color: green;
+            color: #fff;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .action.stop {
+            background-color: red;
+        }
+
+        #send > input {
+            font-size: 16px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid #000;
+            width: 200px;
+        }
+
+        input[type="radio"] {
+            width: 30px;
+        }
+
+        #response {
+            width: 100%;
+            height: 50px;
+            font-family: mono, 'courier new';
+            font-size: 12px;
+            border: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div style="text-align: center;">
+    <button class="action" data-action="feed">FEED</button>
+    <button class="action stop" data-action="stop">STOP</button>
+
+    <hr/>
+
+    <textarea id="response">Received content goes here!</textarea>
+</div>
+
+
+<script>
+    var ws = new WebSocket("ws://192.168.4.1:80");
+    var actions = document.getElementsByClassName('action');
+    var command = '';
+
+    for (var i = 0; i < actions.length; i++) {
+        actions[i].addEventListener('click', function(e) {
+            e.preventDefault();
+            var cmd = {};
+
+            cmd.action = this.getAttribute('data-action');
+            command = JSON.stringify(cmd);
+            ws.send(JSON.stringify(cmd));
+
+        }, false);
+    }
+
+    ws.onmessage = function (evt) {
+        document.getElementById("response").innerHTML = 'Request: ' + command + "\nResponse: " + evt.data;
+    };
+</script>
+</body>
+</html>
